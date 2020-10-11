@@ -34,7 +34,6 @@
 # Other
 *.ilk
 *.pdb
-*.sln
 *.suo
 *.db
 *.ipch
@@ -43,6 +42,3 @@
 *.tlog
 *.lastbuildstate
 *.idb
-*.vcxproj
-*.filters
-*.user
