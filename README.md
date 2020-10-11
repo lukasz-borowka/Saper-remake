@@ -1,2 +1,1 @@
-# Saper remake
- 
+# Saper remake by Łukasz Borówka
