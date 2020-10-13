@@ -4,10 +4,12 @@ By Lukasz Borowka
 */
 
 #include <SDL.h>
-//#include <iostream>
+#include <iostream>
 
 #define GFX_FILLED 1
 #define GFX_EMPTY 2
+
+#define fps 60
 
 /*class Window
 {
@@ -90,11 +92,14 @@ void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 
 		Uint32 color 				line color using unsigned integer 32 (red, green, blue)
 	*/
 
-	double a = (qy - py) / (qx - px);
-	double b = 0 - (a * px) + py;
+	double a1 = qy - py, a2 = qx - px;
+	double a = a1 / a2;
+	double b = py - (a * px);
 	int domain = 0, base = 0;
 	if((qx - px) < 0) { domain -= (qx - px); base = qx; }
 	else { domain += (qx - px); base = px; }
+
+	//std::cout << "a: " << a << std::endl << "b: " << b << std::endl << "domain: " << domain << std::endl << "base: " << base << std::endl;
 
 	for(int i = 0; i < domain; i++)
 	{
@@ -119,9 +124,10 @@ void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickne
 	
 	if(filled == GFX_FILLED)
 	{
-		for(int p = 0, p < w, p++)
+		for(int p = 0; p < w; p++)
 		{
-
+			for(int q = 0; q < h; q++)
+				GFX(surface, x + p, y + q, color);
 		}
 	}
 	else if(filled == GFX_EMPTY)
@@ -154,11 +160,14 @@ void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x,
 		else
 		{
 		/*CODE LATER*/
+			GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, grey);
+			GFX_DrawRect(surface, w, h - button_height, x, y, 1, GFX_FILLED, color);
 		}
 	}
 	else
 	{
-
+		GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, grey);
+		GFX_DrawRect(surface, w, h - button_height, x, y, 1, GFX_FILLED, color);
 	}
 }
 
@@ -271,12 +280,20 @@ void Menu_Loop()
 	SDL_Event event;
 
 	bool quit = false, left_button_down = false;
-	int window_w = 640, window_h = 480, mouse_x, mouse_y;
+	int window_w = 640, window_h = 480, mouse_x = 0, mouse_y = 0;
 
 // INITIALIZE:
 	window = SDL_CreateWindow("Saper", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, NULL);
 	surface = SDL_GetWindowSurface(window);
 
+// COLORS:
+	Uint32 black = SDL_MapRGB(surface->format, 0, 0, 0);
+	Uint32 white = SDL_MapRGB(surface->format, 255, 255, 250);
+	Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
+
+	SDL_FillRect(surface, NULL, white);
+	//GFX_DrawLine(surface, 0, 0, 200, 200, black);
+	//GFX_DrawRect(surface, 200, 300, 10, 10, 1, GFX_FILLED, red);
 
 // LOOP:
 	while(!quit)
@@ -296,9 +313,19 @@ void Menu_Loop()
 		case SDL_MOUSEMOTION:
 			mouse_x = ev.motion.x;
 			mouse_y = ev.motion.y;
+			//std::cout << mouse_x << "   " << mouse_y << std::endl;
+			break;
+
+		case SDL_QUIT:
+			quit = true;
 			break;
 		} //switch
+		SDL_GetMouseState(&mouse_x, &mouse_y);
+		//std::cout << mouse_x << "   " << mouse_y << "   " << left_button_down << std::endl;
 
+		SDL_FillRect(surface, NULL, white);
+		Draw_Button(surface, 300, 120, 150, 150, mouse_x, mouse_y, left_button_down, red);
+		SDL_UpdateWindowSurface(window);
 		limitfps(ticks); //frame end
 	} //while
 }
