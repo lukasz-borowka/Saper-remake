@@ -6,6 +6,9 @@ By Lukasz Borowka
 #include <SDL.h>
 #include <iostream>
 
+#define GFX_FILLED 1
+#define GFX_EMPTY 2
+
 /*class Window
 {
 private:
@@ -58,24 +61,76 @@ Window::~Window()
 }*/
 
 SDL_Window * window = NULL;
-SDL_Texture * texture = NULL;
-SDL_Renderer * renderer = NULL;
+SDL_Surface * surface = NULL;
+//SDL_Texture * texture = NULL;
+//SDL_Renderer * renderer = NULL;
 SDL_Event ev;
+
+//Colors
+Uint32 Black;
+Uint32 White;
 
 int window_w = 640, window_h = 480;
 
-void Menu_Loop()
+//////// DRAWING FUNCTIONS
+void GFX(SDL_Surface * surface, int x, int y, Uint32 color)
 {
-	bool quit = false;
-	while(!quit){ }
+	if (x > -1 & y > -1 & x < window_w & y < window_h) {
+		Uint32 * p = (Uint32 *)surface->pixels + y * surface->w + x;
+		*p = color;
+	}
 }
+void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 color)
+{
+	/*
+	GFX_DrawLine:
+		SDL_Surface * surface 		temporary sdl surface
+		int px, int py 				x & y pos of the first (p) point
+		int qx, int qy 				x & y pos of the second (q) point
+		Uint32 color 				line color using unsigned integer 32 (red, green, blue)
+	*/
+
+	
+}
+void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickness, int filled, Uint32 color)
+{
+	/*
+	GFX_DrawRect:
+		SDL_Surface * surface 		temporary sdl surface
+		int w, int h 				width & height of the rect
+		int x, int y 				x & y pos of the rect, relatively to the window
+		int thickness 				thickness of the border of the rect, used only if not filled
+									if the fickness is greater that 1 then the other lines are drew inside the rect
+		int filled 					gfx flag: GFX_FILLED / GFX_EMPTY
+		Uint32 color 				rect color using unsigned integer 32 (red, green, blue)
+
+	If the rect is empty (GFX_EMPTY flag) then cals the GFX_DrawLine() function to draw the border of the rect
+	*/
+	
+	if(filled == GFX_FILLED)
+	{
+		for(int p = 0, p < w, p++)
+		{
+
+		}
+	}
+	else if(filled == GFX_EMPTY)
+	{
+
+	}
+}
+
+void Menu_Loop();
+void Game_Loop();
 
 int main(int argc, char* argv[])
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	window = SDL_CreateWindow("Saper by Lukasz Borowka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, NULL);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	surface = SDL_GetWindowSurface(window);
+	
+	/*renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, window_w, window_h);
 
 	Uint32 * pixels;
@@ -83,13 +138,19 @@ int main(int argc, char* argv[])
 	memset(pixels, 255, window_w * window_h * sizeof(Uint32));
 	delete[] pixels;
 	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(renderer);
+	SDL_DestroyRenderer(renderer);*/
 
+	//Colors
+	Black = SDL_MapRGB(surface->format, 0, 0, 0);
+	White = SDL_MapRGB(surface->format, 255, 255, 255);
+
+	SDL_FillRect(surface, NULL, White);
 
 	bool quit = false, left_mouse_button_down = false;
 
 	while(!quit){
-		SDL_UpdateTexture(texture, NULL, pixels, window_w * sizeof(Uint32));
+		//SDL_UpdateTexture(texture, NULL, pixels, window_w * sizeof(Uint32));
+		
 
 		SDL_WaitEvent(&ev);
 		switch(ev.type)
@@ -109,7 +170,7 @@ int main(int argc, char* argv[])
 			{
 				int mouse_x = ev.motion.x;
 				int mouse_y = ev.motion.y;
-				pixels[mouse_y * window_w + mouse_x] = SDL_Color(0, 0, 0);
+				gfx(mouse_x, mouse_y);
 			}
 			break;
 
@@ -118,11 +179,16 @@ int main(int argc, char* argv[])
 			break;
 		} //switch
 
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-		SDL_RenderPresent(renderer);
+		SDL_UpdateWindowSurface(window);
+
+		//SDL_RenderClear(renderer);
+		//SDL_RenderCopy(renderer, texture, NULL, NULL);
+		//SDL_RenderPresent(renderer);
 	} //while
 
+	//SDL_DestroyWindow(window);
+	//window = SDL_CreateWindow("Saper by Lukasz Borowka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, NULL);
+	//SDL_Delay(4000);
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -134,4 +200,33 @@ int main(int argc, char* argv[])
 	SDL_Delay(7000);
 
 	return EXIT_SUCCESS;*/
+}
+
+
+
+
+
+
+
+void Menu_Loop()
+{
+	/*
+	The main menu loop:
+		Creates its window, and surface
+		Draws buttons:
+			Play button
+		When Play clicked it calls the Game_Loop() function
+
+		Colors: White, Gray, Black, Light_Gray, Orange, Light_Blue;
+	*/
+}
+
+
+
+
+
+
+
+void Game_Loop()
+{
 }
