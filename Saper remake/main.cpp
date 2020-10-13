@@ -4,7 +4,7 @@ By Lukasz Borowka
 */
 
 #include <SDL.h>
-#include <iostream>
+//#include <iostream>
 
 #define GFX_FILLED 1
 #define GFX_EMPTY 2
@@ -72,7 +72,7 @@ Uint32 White;
 
 int window_w = 640, window_h = 480;
 
-//////// DRAWING FUNCTIONS
+//////// DRAWING FUNCTIONS ; GFX
 void GFX(SDL_Surface * surface, int x, int y, Uint32 color)
 {
 	if (x > -1 & y > -1 & x < window_w & y < window_h) {
@@ -90,7 +90,17 @@ void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 
 		Uint32 color 				line color using unsigned integer 32 (red, green, blue)
 	*/
 
-	
+	double a = (qy - py) / (qx - px);
+	double b = 0 - (a * px) + py;
+	int domain = 0, base = 0;
+	if((qx - px) < 0) { domain -= (qx - px); base = qx; }
+	else { domain += (qx - px); base = px; }
+
+	for(int i = 0; i < domain; i++)
+	{
+		int y = (i + base) * a + b;
+		GFX(surface, i + base, y, color);
+	}
 }
 void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickness, int filled, Uint32 color)
 {
@@ -120,6 +130,45 @@ void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickne
 	}
 }
 
+void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x, int mouse_y, bool clicked, Uint32 color)
+{
+	/*
+	Draw_Button:
+		SDL_Surface * surface 		temporary sdl surface
+		int w, int h 				width & height of the button
+		int x, int y 				x & y pos of the button, relatively to the window
+		int mouse_x, int mouse_y	x & y pos of the cursor ; it is used to check if the button is pointed
+		bool clicked				along with mouse_x & mouse_y is used to check if the button is clicked
+		Uint32 color 				rect color using unsigned integer 32 (red, green, blue)
+	*/
+
+	Uint32 grey = SDL_MapRGB(surface->format, 60, 60, 60);
+	int button_height = 10;
+
+	if( (mouse_x > x & mouse_x < x + w) & (mouse_y > y & mouse_y < y + h) ) //check if pointed
+	{
+		if(clicked)
+		{
+			GFX_DrawRect(surface, w, h - button_height, x, y + button_height, 0, GFX_FILLED, color);
+		}
+		else
+		{
+		/*CODE LATER*/
+		}
+	}
+	else
+	{
+
+	}
+}
+
+void limitfps(Uint32 ticks)
+{
+	if ((1000 / fps) > SDL_GetTicks() - ticks) {
+		SDL_Delay(1000 / fps - (SDL_GetTicks() - ticks));
+	}
+}
+
 void Menu_Loop();
 void Game_Loop();
 
@@ -127,8 +176,10 @@ int main(int argc, char* argv[])
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	window = SDL_CreateWindow("Saper by Lukasz Borowka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, NULL);
-	surface = SDL_GetWindowSurface(window);
+	Menu_Loop();
+
+	//window = SDL_CreateWindow("Saper by Lukasz Borowka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, NULL);
+	//surface = SDL_GetWindowSurface(window);
 	
 	/*renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, window_w, window_h);
@@ -141,7 +192,7 @@ int main(int argc, char* argv[])
 	SDL_DestroyRenderer(renderer);*/
 
 	//Colors
-	Black = SDL_MapRGB(surface->format, 0, 0, 0);
+	/*Black = SDL_MapRGB(surface->format, 0, 0, 0);
 	White = SDL_MapRGB(surface->format, 255, 255, 255);
 
 	SDL_FillRect(surface, NULL, White);
@@ -185,12 +236,12 @@ int main(int argc, char* argv[])
 		//SDL_RenderCopy(renderer, texture, NULL, NULL);
 		//SDL_RenderPresent(renderer);
 	} //while
-
+	*/
 	//SDL_DestroyWindow(window);
 	//window = SDL_CreateWindow("Saper by Lukasz Borowka", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, NULL);
 	//SDL_Delay(4000);
 
-	SDL_DestroyWindow(window);
+	//SDL_DestroyWindow(window);
 	SDL_Quit();
 	return 0;
 	/*setlocale(LC_CTYPE, "Polish");
@@ -201,12 +252,6 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;*/
 }
-
-
-
-
-
-
 
 void Menu_Loop()
 {
@@ -219,13 +264,44 @@ void Menu_Loop()
 
 		Colors: White, Gray, Black, Light_Gray, Orange, Light_Blue;
 	*/
+
+// DECLARATIONS:
+	SDL_Window * window = NULL;
+	SDL_Surface * surface = NULL;
+	SDL_Event event;
+
+	bool quit = false, left_button_down = false;
+	int window_w = 640, window_h = 480, mouse_x, mouse_y;
+
+// INITIALIZE:
+	window = SDL_CreateWindow("Saper", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_w, window_h, NULL);
+	surface = SDL_GetWindowSurface(window);
+
+
+// LOOP:
+	while(!quit)
+	{
+		Uint32 ticks = SDL_GetTicks(); //frame start
+		SDL_WaitEvent(&event);
+		switch(event.type)
+		{
+		case SDL_MOUSEBUTTONUP:
+			left_button_down = false;
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			left_button_down = true;
+			break;
+
+		case SDL_MOUSEMOTION:
+			mouse_x = ev.motion.x;
+			mouse_y = ev.motion.y;
+			break;
+		} //switch
+
+		limitfps(ticks); //frame end
+	} //while
 }
-
-
-
-
-
-
 
 void Game_Loop()
 {
