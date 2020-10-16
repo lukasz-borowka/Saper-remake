@@ -6,8 +6,24 @@ By Lukasz Borowka
 #include <SDL.h>
 #include <iostream>
 
+//GFX DEFINES
 #define GFX_FILLED 1
 #define GFX_EMPTY 2
+
+//COLORS:
+//default:
+#define col_black SDL_MapRGB(surface->format, 0, 0, 0)
+#define col_white SDL_MapRGB(surface->format, 255, 255, 255)
+#define col_light_gray SDL_MapRGB(surface->format, 180, 180, 180)
+#define col_mid_gray SDL_MapRGB(surface->format, 110, 110, 110)
+#define col_dark_gray SDL_MapRGB(surface->format, 50, 50, 50)
+//red:
+#define col_full_red SDL_MapRGB(surface->format, 255, 0, 0)
+//green:
+#define col_full_green SDL_MapRGB(surface->format, 0, 255, 0)
+//blue:
+#define col_full_blue SDL_MapRGB(surface->format, 0, 0, 255)
+
 
 #define fps 60
 
@@ -165,7 +181,31 @@ void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickne
 	}
 	else if(filled == GFX_EMPTY)
 	{
-
+		//If the thickness equals 1, then just draw the border which consists of 4 lines
+		if(thickness == 1)
+		{
+			/*
+			A------B
+			|      |
+			D------C
+			*/
+			GFX_DrawLine(surface, x, y, x + w, y, color);				// A -- B
+			GFX_DrawLine(surface, x, y + h, x + w + 1, y + h, color);	// D -- C
+			GFX_DrawLine(surface, x, y, x, y + h, color);				// A -- D
+			GFX_DrawLine(surface, x + w, y, x + w, y + h, color);		// B -- C
+		}
+		//If the thickness is greater that 1, then draw amount of lines that's needed
+		else if(thickness > 1)
+		{
+			//Repeat drawing lines as long as it's needed
+			for(int i = 0; i < thickness; i++)
+			{
+				GFX_DrawLine(surface, x, y + i, x + w, y + i, color);				// A -- B
+				GFX_DrawLine(surface, x, y + h - i, x + w + 1, y + h - i, color);	// D -- C
+				GFX_DrawLine(surface, x + i, y, x + i, y + h, color);				// A -- D
+				GFX_DrawLine(surface, x + w - i, y, x + w - i, y + h, color);		// B -- C
+			}
+		}
 	}
 }
 
@@ -181,7 +221,7 @@ void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x,
 		Uint32 color 				rect color using unsigned integer 32 (red, green, blue)
 	*/
 
-	Uint32 grey = SDL_MapRGB(surface->format, 60, 60, 60);
+	Uint32 back_color = col_dark_gray;
 	int button_height = 10;
 
 	if( (mouse_x > x & mouse_x < x + w) & (mouse_y > y & mouse_y < y + h) ) //check if pointed
@@ -193,13 +233,13 @@ void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x,
 		else
 		{
 		/*CODE LATER*/
-			GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, grey);
+			GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, back_color);
 			GFX_DrawRect(surface, w, h - button_height, x, y, 1, GFX_FILLED, color);
 		}
 	}
 	else
 	{
-		GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, grey);
+		GFX_DrawRect(surface, w, h, x, y, 1, GFX_FILLED, back_color);
 		GFX_DrawRect(surface, w, h - button_height, x, y, 1, GFX_FILLED, color);
 	}
 }
@@ -320,11 +360,12 @@ void Menu_Loop()
 	surface = SDL_GetWindowSurface(window);
 
 // COLORS:
-	Uint32 black = SDL_MapRGB(surface->format, 0, 0, 0);
-	Uint32 white = SDL_MapRGB(surface->format, 255, 255, 250);
-	Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
+	//Certainly there is no need in decaring color, they're preprocesed using define
+	//Uint32 black = SDL_MapRGB(surface->format, 0, 0, 0);
+	//Uint32 white = SDL_MapRGB(surface->format, 255, 255, 250);
+	//Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
 
-	SDL_FillRect(surface, NULL, white);
+	SDL_FillRect(surface, NULL, col_white);
 	//GFX_DrawLine(surface, 0, 0, 200, 200, black);
 	//GFX_DrawRect(surface, 200, 300, 10, 10, 1, GFX_FILLED, red);
 
@@ -356,15 +397,17 @@ void Menu_Loop()
 		//SDL_GetMouseState(&mouse_x, &mouse_y);
 		//std::cout << mouse_x << "   " << mouse_y << "   " << left_button_down << std::endl;
 
-		SDL_FillRect(surface, NULL, white);
+		SDL_FillRect(surface, NULL, col_white);
 
 		//Some lines
-		GFX_DrawLine(surface, 0, 0, 100, 400, black);
-		GFX_DrawLine(surface, 0, 0, 400, 100, black);
-		GFX_DrawLine(surface, 100, 100, 100, 300, black);
+		GFX_DrawLine(surface, 0, 0, 100, 400, col_black);
+		GFX_DrawLine(surface, 0, 0, 400, 100, col_black);
+		GFX_DrawLine(surface, 100, 100, 100, 300, col_mid_gray);
+
+		GFX_DrawRect(surface, 150, 50, 50, 50, 8, GFX_EMPTY, col_full_green);
 
 		//Start button
-		Draw_Button(surface, 300, 120, 150, 150, mouse_x, mouse_y, left_button_down, red);
+		Draw_Button(surface, 300, 120, 150, 150, mouse_x, mouse_y, left_button_down, col_full_red);
 
 		SDL_UpdateWindowSurface(window);
 		limitfps(ticks); //frame end
