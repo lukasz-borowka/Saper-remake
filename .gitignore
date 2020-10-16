@@ -42,3 +42,6 @@
 *.tlog
 *.lastbuildstate
 *.idb
+*.db-shm
+*.db-wal
+*.opendb

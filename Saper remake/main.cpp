@@ -62,15 +62,15 @@ Window::~Window()
 {
 }*/
 
-SDL_Window * window = NULL;
-SDL_Surface * surface = NULL;
+//SDL_Window * window = NULL;
+//SDL_Surface * surface = NULL;
 //SDL_Texture * texture = NULL;
 //SDL_Renderer * renderer = NULL;
-SDL_Event ev;
+//SDL_Event ev;
 
 //Colors
-Uint32 Black;
-Uint32 White;
+//Uint32 Black;
+//Uint32 White;
 
 int window_w = 640, window_h = 480;
 
@@ -93,18 +93,51 @@ void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 
 	*/
 
 	double a1 = qy - py, a2 = qx - px;
-	double a = a1 / a2;
-	double b = py - (a * px);
-	int domain = 0, base = 0;
-	if((qx - px) < 0) { domain -= (qx - px); base = qx; }
-	else { domain += (qx - px); base = px; }
-
-	//std::cout << "a: " << a << std::endl << "b: " << b << std::endl << "domain: " << domain << std::endl << "base: " << base << std::endl;
-
-	for(int i = 0; i < domain; i++)
+	//double a = a1 / a2; 			<-- Moved down to if
+	if(a2 != 0)
 	{
-		int y = (i + base) * a + b;
-		GFX(surface, i + base, y, color);
+		if(a1 / a2 <= 1) //F(X) func
+		{
+			double a = a1 / a2;
+			double b = py - (a * px);
+			int domain = 0, base = 0;
+			if((qx - px) < 0) { domain -= (qx - px); base = qx; }
+			else { domain += (qx - px); base = px; }
+
+			for(int i = 0; i < domain; i++)
+			{
+				int y = (i + base) * a + b;
+				GFX(surface, i + base, y, color);
+			}
+		}
+		else //Here the a is to large so there would be spaces between the points, so we treat it as F(Y) func to avoid that
+		{
+			double a = a2 / a1;
+			double b = px - (a * px);
+			int domain = 0, base = 0;
+			if((qy - py) < 0) { domain -= (qy - py); base = qy; }
+			else { domain += (qy - py); base = py; }
+
+			for(int i = 0; i < domain; i++)
+			{
+				int x = (i + base) * a + b;
+				GFX(surface, x, i + base, color);
+			}
+		}
+	}
+	else //If a2 = 0 then a1 can't be dividen by a2, so we just asume that it has to be the F(Y) func w/ a == 0
+	{
+		double a = 0;
+		double b = px - (a * px);
+		int domain = 0, base = 0;
+		if((qy - py) < 0) { domain -= (qy - py); base = qy; }
+		else { domain += (qy - py); base = py; }
+
+		for(int i = 0; i < domain; i++)
+		{
+			int x = (i + base) * a + b;
+			GFX(surface, x, i + base, color);
+		}
 	}
 }
 void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickness, int filled, Uint32 color)
@@ -311,8 +344,8 @@ void Menu_Loop()
 			break;
 
 		case SDL_MOUSEMOTION:
-			mouse_x = ev.motion.x;
-			mouse_y = ev.motion.y;
+			mouse_x = event.motion.x;
+			mouse_y = event.motion.y;
 			//std::cout << mouse_x << "   " << mouse_y << std::endl;
 			break;
 
@@ -320,11 +353,19 @@ void Menu_Loop()
 			quit = true;
 			break;
 		} //switch
-		SDL_GetMouseState(&mouse_x, &mouse_y);
+		//SDL_GetMouseState(&mouse_x, &mouse_y);
 		//std::cout << mouse_x << "   " << mouse_y << "   " << left_button_down << std::endl;
 
 		SDL_FillRect(surface, NULL, white);
+
+		//Some lines
+		GFX_DrawLine(surface, 0, 0, 100, 400, black);
+		GFX_DrawLine(surface, 0, 0, 400, 100, black);
+		GFX_DrawLine(surface, 100, 100, 100, 300, black);
+
+		//Start button
 		Draw_Button(surface, 300, 120, 150, 150, mouse_x, mouse_y, left_button_down, red);
+
 		SDL_UpdateWindowSurface(window);
 		limitfps(ticks); //frame end
 	} //while
