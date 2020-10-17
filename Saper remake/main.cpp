@@ -3,101 +3,15 @@ Saper game remake made with use of the SDL 2 library
 By Lukasz Borowka
 */
 
-#include <SDL.h>
+#include "GFX/GFX.h"
 #include <iostream>
 
-//GFX DEFINES
-#define GFX_FILLED 1
-#define GFX_EMPTY 2
-
-//COLORS:
-//default:
-#define col_black SDL_MapRGB(surface->format, 0, 0, 0)
-#define col_white SDL_MapRGB(surface->format, 255, 255, 255)
-#define col_light_gray SDL_MapRGB(surface->format, 180, 180, 180)
-#define col_mid_gray SDL_MapRGB(surface->format, 110, 110, 110)
-#define col_dark_gray SDL_MapRGB(surface->format, 50, 50, 50)
-//red:
-#define col_full_red SDL_MapRGB(surface->format, 255, 0, 0)
-//green:
-#define col_full_green SDL_MapRGB(surface->format, 0, 255, 0)
-//blue:
-#define col_full_blue SDL_MapRGB(surface->format, 0, 0, 255)
-
-
-#define fps 60
-
-/*class Window
-{
-private:
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-
-	int width, height;
-
-	bool isRunning;
-
-public:
-	Window(const char* title = "Saper Remake by Lukasz Borowka",
-		int x = SDL_WINDOWPOS_CENTERED,
-		int y = SDL_WINDOWPOS_CENTERED,
-		int w = 800, int h = 600);
-
-	~Window();
-
-	bool running() { return isRunning; }
-	int Height() { return height; }
-	int Width() { return width; }
-};
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-Window::Window(const char* title, int x, int y, int w, int h) {
-	isRunning = true;
-
-	if (SDL_Init(SDL_INIT_EVERYTHING) == 0) std::cout << "Starting SDL... 100%" << std::endl;
-	else {
-		std::cout << "SDL_Init error...";
-		isRunning = false;
-	}
-
-	width = w;
-	height = h;
-
-	window = SDL_CreateWindow(title, x, y, w, h, NULL);
-	if ((SDL_GetError() != 0) & isRunning) std::cout << "Creating window... 100%" << std::endl;
-	else
-	{
-		std::cout << "Window error...";
-		isRunning = false;
-	}
-
-
-}
-
-Window::~Window()
-{
-}*/
-
-//SDL_Window * window = NULL;
-//SDL_Surface * surface = NULL;
-//SDL_Texture * texture = NULL;
-//SDL_Renderer * renderer = NULL;
-//SDL_Event ev;
-
-//Colors
-//Uint32 Black;
-//Uint32 White;
+#define FPS 60
 
 int window_w = 640, window_h = 480;
 
 //////// DRAWING FUNCTIONS ; GFX
-void GFX(SDL_Surface * surface, int x, int y, Uint32 color)
-{
-	if (x > -1 & y > -1 & x < window_w & y < window_h) {
-		Uint32 * p = (Uint32 *)surface->pixels + y * surface->w + x;
-		*p = color;
-	}
-}
+
 void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 color)
 {
 	/*
@@ -360,7 +274,7 @@ void Menu_Loop()
 	surface = SDL_GetWindowSurface(window);
 
 // COLORS:
-	//Certainly there is no need in decaring color, they're preprocesed using define
+	//Currently there is no need to declare colors, they're preprocesed using define
 	//Uint32 black = SDL_MapRGB(surface->format, 0, 0, 0);
 	//Uint32 white = SDL_MapRGB(surface->format, 255, 255, 250);
 	//Uint32 red = SDL_MapRGB(surface->format, 255, 0, 0);
