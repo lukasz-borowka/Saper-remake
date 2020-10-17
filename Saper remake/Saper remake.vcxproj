@@ -145,7 +145,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GFX\GFX.cpp" />
+    <ClCompile Include="GFX\GFX_DrawLine.cpp" />
+    <ClCompile Include="GFX\GFX_DrawRect.cpp" />
+    <ClCompile Include="GFX\GFX_LimitFps.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GFX\GFX.h" />
+    <ClInclude Include="GFX\GFX_Colors.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

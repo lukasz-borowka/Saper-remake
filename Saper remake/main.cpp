@@ -10,119 +10,6 @@ By Lukasz Borowka
 
 int window_w = 640, window_h = 480;
 
-//////// DRAWING FUNCTIONS ; GFX
-
-void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 color)
-{
-	/*
-	GFX_DrawLine:
-		SDL_Surface * surface 		temporary sdl surface
-		int px, int py 				x & y pos of the first (p) point
-		int qx, int qy 				x & y pos of the second (q) point
-		Uint32 color 				line color using unsigned integer 32 (red, green, blue)
-	*/
-
-	double a1 = qy - py, a2 = qx - px;
-	//double a = a1 / a2; 			<-- Moved down to if
-	if(a2 != 0)
-	{
-		if(a1 / a2 <= 1) //F(X) func
-		{
-			double a = a1 / a2;
-			double b = py - (a * px);
-			int domain = 0, base = 0;
-			if((qx - px) < 0) { domain -= (qx - px); base = qx; }
-			else { domain += (qx - px); base = px; }
-
-			for(int i = 0; i < domain; i++)
-			{
-				int y = (i + base) * a + b;
-				GFX(surface, i + base, y, color);
-			}
-		}
-		else //Here the a is to large so there would be spaces between the points, so we treat it as F(Y) func to avoid that
-		{
-			double a = a2 / a1;
-			double b = px - (a * px);
-			int domain = 0, base = 0;
-			if((qy - py) < 0) { domain -= (qy - py); base = qy; }
-			else { domain += (qy - py); base = py; }
-
-			for(int i = 0; i < domain; i++)
-			{
-				int x = (i + base) * a + b;
-				GFX(surface, x, i + base, color);
-			}
-		}
-	}
-	else //If a2 = 0 then a1 can't be dividen by a2, so we just asume that it has to be the F(Y) func w/ a == 0
-	{
-		double a = 0;
-		double b = px - (a * px);
-		int domain = 0, base = 0;
-		if((qy - py) < 0) { domain -= (qy - py); base = qy; }
-		else { domain += (qy - py); base = py; }
-
-		for(int i = 0; i < domain; i++)
-		{
-			int x = (i + base) * a + b;
-			GFX(surface, x, i + base, color);
-		}
-	}
-}
-void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickness, int filled, Uint32 color)
-{
-	/*
-	GFX_DrawRect:
-		SDL_Surface * surface 		temporary sdl surface
-		int w, int h 				width & height of the rect
-		int x, int y 				x & y pos of the rect, relatively to the window
-		int thickness 				thickness of the border of the rect, used only if not filled
-									if the fickness is greater that 1 then the other lines are drew inside the rect
-		int filled 					gfx flag: GFX_FILLED / GFX_EMPTY
-		Uint32 color 				rect color using unsigned integer 32 (red, green, blue)
-
-	If the rect is empty (GFX_EMPTY flag) then cals the GFX_DrawLine() function to draw the border of the rect
-	*/
-	
-	if(filled == GFX_FILLED)
-	{
-		for(int p = 0; p < w; p++)
-		{
-			for(int q = 0; q < h; q++)
-				GFX(surface, x + p, y + q, color);
-		}
-	}
-	else if(filled == GFX_EMPTY)
-	{
-		//If the thickness equals 1, then just draw the border which consists of 4 lines
-		if(thickness == 1)
-		{
-			/*
-			A------B
-			|      |
-			D------C
-			*/
-			GFX_DrawLine(surface, x, y, x + w, y, color);				// A -- B
-			GFX_DrawLine(surface, x, y + h, x + w + 1, y + h, color);	// D -- C
-			GFX_DrawLine(surface, x, y, x, y + h, color);				// A -- D
-			GFX_DrawLine(surface, x + w, y, x + w, y + h, color);		// B -- C
-		}
-		//If the thickness is greater that 1, then draw amount of lines that's needed
-		else if(thickness > 1)
-		{
-			//Repeat drawing lines as long as it's needed
-			for(int i = 0; i < thickness; i++)
-			{
-				GFX_DrawLine(surface, x, y + i, x + w, y + i, color);				// A -- B
-				GFX_DrawLine(surface, x, y + h - i, x + w + 1, y + h - i, color);	// D -- C
-				GFX_DrawLine(surface, x + i, y, x + i, y + h, color);				// A -- D
-				GFX_DrawLine(surface, x + w - i, y, x + w - i, y + h, color);		// B -- C
-			}
-		}
-	}
-}
-
 void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x, int mouse_y, bool clicked, Uint32 color)
 {
 	/*
@@ -138,7 +25,7 @@ void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x,
 	Uint32 back_color = col_dark_gray;
 	int button_height = 10;
 
-	if( (mouse_x > x & mouse_x < x + w) & (mouse_y > y & mouse_y < y + h) ) //check if pointed
+	if( (mouse_x > x && mouse_x < x + w) && (mouse_y > y && mouse_y < y + h) ) //check if pointed
 	{
 		if(clicked)
 		{
@@ -158,19 +45,14 @@ void Draw_Button(SDL_Surface * surface, int w, int h, int x, int y, int mouse_x,
 	}
 }
 
-void limitfps(Uint32 ticks)
-{
-	if ((1000 / fps) > SDL_GetTicks() - ticks) {
-		SDL_Delay(1000 / fps - (SDL_GetTicks() - ticks));
-	}
-}
-
 void Menu_Loop();
 void Game_Loop();
 
 int main(int argc, char* argv[])
 {
+
 	SDL_Init(SDL_INIT_EVERYTHING);
+	GFX_Setup(window_w, window_h);
 
 	Menu_Loop();
 
@@ -240,13 +122,6 @@ int main(int argc, char* argv[])
 	//SDL_DestroyWindow(window);
 	SDL_Quit();
 	return 0;
-	/*setlocale(LC_CTYPE, "Polish");
-
-	Window Menu_Window;
-
-	SDL_Delay(7000);
-
-	return EXIT_SUCCESS;*/
 }
 
 void Menu_Loop()
@@ -324,7 +199,7 @@ void Menu_Loop()
 		Draw_Button(surface, 300, 120, 150, 150, mouse_x, mouse_y, left_button_down, col_full_red);
 
 		SDL_UpdateWindowSurface(window);
-		limitfps(ticks); //frame end
+		GFX_LimitFps(ticks, FPS); //frame end
 	} //while
 }
 
