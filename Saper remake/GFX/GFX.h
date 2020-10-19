@@ -2,8 +2,6 @@
 
 #include <SDL.h>
 
-int Window_Width = 0, Window_Height = 0;
-
 //
 //DEFINES:
 #define GFX_FILLED 1
@@ -36,11 +34,3 @@ void GFX(SDL_Surface * surface, int x, int y, Uint32 color);
 void GFX_DrawLine(SDL_Surface * surface, int px, int py, int qx, int qy, Uint32 color);
 void GFX_DrawRect(SDL_Surface * surface, int w, int h, int x, int y, int thickness, int filled, Uint32 color);
 void GFX_LimitFps(Uint32 ticks, int fps);
-
-//
-//GFX SETUP:
-void GFX_Setup(int w, int h)
-{
-	Window_Width = w;
-	Window_Height = h;
-}
